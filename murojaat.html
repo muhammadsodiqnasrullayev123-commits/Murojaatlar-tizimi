@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Murojaatlar tizimi</title>
+  <style>
+    body { background:#f0f4f8; font-family:Arial,sans-serif; margin:0; padding:20px; }
+
+    .header { background:#0D2B55; color:white; padding:20px 30px; border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; }
+    .header h1 { margin:0; font-size:22px; }
+    .header p { margin:0; color:#C8A84B; font-size:13px; }
+    .header-soni { background:rgba(255,255,255,0.15); padding:8px 16px; border-radius:8px; text-align:center; }
+    .header-soni div:first-child { font-size:22px; font-weight:700; }
+    .header-soni div:last-child { font-size:11px; color:#C8A84B; }
+
+    .menu { display:flex; gap:10px; margin-bottom:20px; }
+    .menu button { padding:10px 24px; border:none; border-radius:8px; font-size:14px; cursor:pointer; font-weight:bold; }
+    .menu .aktiv { background:#0D2B55; color:white; }
+    .menu .oddiy { background:white; color:#0D2B55; border:2px solid #0D2B55; }
+
+    .sahifa { display:none; }
+    .sahifa.aktiv { display:block; }
+
+    /* FORMA */
+    .forma { background:white; padding:30px; border-radius:10px; max-width:520px; }
+    .forma h2 { color:#0D2B55; margin-top:0; }
+    label { display:block; font-weight:bold; color:#444; margin-bottom:5px; margin-top:15px; font-size:13px; }
+    input, textarea, select { width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-size:14px; box-sizing:border-box; }
+    input:focus, textarea:focus, select:focus { outline:none; border-color:#0D2B55; }
+    .btn-yuborish { background:#0D2B55; color:white; padding:12px 30px; border:none; border-radius:6px; font-size:15px; cursor:pointer; margin-top:20px; width:100%; }
+    .btn-yuborish:hover { background:#C8A84B; color:#0D2B55; }
+
+    .xabar { padding:14px 18px; border-radius:8px; margin-top:14px; font-weight:bold; display:none; font-size:13px; }
+    .yashil { background:#d4edda; color:#1B7A4B; border:1px solid #a8dec1; }
+    .qizil  { background:#fde8e8; color:#9B2020; border:1px solid #f5c5c5; }
+
+    /* RO'YXAT */
+    .royxat-wrap { background:white; border-radius:10px; padding:24px; }
+    .royxat-bosh { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .royxat-bosh h2 { color:#0D2B55; margin:0; }
+    .soni-badge { background:#0D2B55; color:white; padding:2px 10px; border-radius:20px; font-size:13px; margin-left:8px; }
+
+    /* FILTER */
+    .filter-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+    .filter-btn { padding:6px 16px; border-radius:20px; border:1px solid #ddd; background:white; font-size:12px; cursor:pointer; font-weight:600; color:#666; }
+    .filter-btn.aktiv { background:#0D2B55; color:white; border-color:#0D2B55; }
+    .filter-btn.f-yangi.aktiv    { background:#1A4080; border-color:#1A4080; }
+    .filter-btn.f-korib.aktiv    { background:#8A5A00; border-color:#8A5A00; }
+    .filter-btn.f-hal.aktiv      { background:#1B7A4B; border-color:#1B7A4B; }
+    .filter-btn.f-rad.aktiv      { background:#9B2020; border-color:#9B2020; }
+
+    /* KARTA */
+    .murojaat-karta { border:1px solid #e0e6f0; border-radius:10px; padding:16px; margin-bottom:12px; transition:box-shadow 0.2s; }
+    .murojaat-karta:hover { box-shadow:0 2px 12px rgba(13,43,85,0.1); }
+    .karta-yuqori { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; }
+    .karta-ism { font-weight:700; color:#0D2B55; font-size:14px; }
+    .karta-badglar { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+    .tur-badge { background:#E6EEFA; color:#1A4080; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+    .karta-info { font-size:12px; color:#888; margin-bottom:8px; }
+    .karta-mazmun { font-size:13px; color:#333; background:#f8f9fb; padding:10px; border-radius:6px; margin-bottom:10px; line-height:1.5; }
+    .karta-pastki { display:flex; justify-content:space-between; align-items:center; }
+    .karta-raqam { font-size:11px; color:#bbb; }
+
+    /* HOLAT BADGE */
+    .holat { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; border:none; cursor:pointer; }
+    .holat-yangi  { background:#E6EEFA; color:#1A4080; }
+    .holat-korib  { background:#FEF3DC; color:#8A5A00; }
+    .holat-hal    { background:#d4edda; color:#1B7A4B; }
+    .holat-rad    { background:#fde8e8; color:#9B2020; }
+
+    /* HOLAT O'ZGARTIRISH */
+    .holat-select { padding:4px 8px; border-radius:6px; border:1px solid #ddd; font-size:12px; font-weight:600; cursor:pointer; background:white; }
+
+    .bosh-holat { text-align:center; padding:50px 20px; color:#bbb; }
+    .bosh-holat div:first-child { font-size:48px; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>Kattaqo'rg'on Hokimligi</h1>
+      <p>Murojaatlar tizimi</p>
+    </div>
+    <div class="header-soni">
+      <div id="jami-soni">0</div>
+      <div>ta murojaat</div>
+    </div>
+  </div>
+
+  <div class="menu">
+    <button class="aktiv" onclick="sahifaKo('forma', this)">✉️ Murojaat yuborish</button>
+    <button class="oddiy" onclick="sahifaKo('royxat', this)">📋 Murojaatlar ro'yxati</button>
+  </div>
+
+  <!-- FORMA -->
+  <div id="sahifa-forma" class="sahifa aktiv">
+    <div class="forma">
+      <h2>Murojaat yuborish</h2>
+      <label>To'liq ismingiz:</label>
+      <input type="text" id="ism" placeholder="Familiya Ism Otasining ismi">
+      <label>Telefon raqami:</label>
+      <input type="tel" id="telefon" placeholder="+998 90 000 00 00">
+      <label>Murojaat turi:</label>
+      <select id="tur">
+        <option value="">— Tanlang —</option>
+        <option>Ariza</option>
+        <option>Shikoyat</option>
+        <option>Taklif</option>
+        <option>Ma'lumot so'rovi</option>
+      </select>
+      <label>Mas'ul bo'lim:</label>
+      <select id="bolim">
+        <option value="">— Tanlang —</option>
+        <option>Kommunal xizmatlar</option>
+        <option>Ta'lim bo'limi</option>
+        <option>Qurilish va arxitektura</option>
+        <option>Ijtimoiy himoya</option>
+        <option>Yer masalalari</option>
+      </select>
+      <label>Murojaat mazmuni:</label>
+      <textarea id="mazmun" rows="5" placeholder="Murojaat matnini yozing..."></textarea>
+      <button class="btn-yuborish" onclick="yuborish()">✉️ Yuborish</button>
+      <div class="xabar qizil"  id="xato"></div>
+      <div class="xabar yashil" id="muvaffaqiyat"></div>
+    </div>
+  </div>
+
+  <!-- RO'YXAT -->
+  <div id="sahifa-royxat" class="sahifa">
+    <div class="royxat-wrap">
+      <div class="royxat-bosh">
+        <h2>Barcha murojaatlar <span class="soni-badge" id="soni">0</span></h2>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-btn aktiv" onclick="filter('barchasi', this)">Barchasi</button>
+        <button class="filter-btn f-yangi"  onclick="filter('Yangi', this)">🔵 Yangi</button>
+        <button class="filter-btn f-korib"  onclick="filter('Ko\'rib chiqilmoqda', this)">🟡 Ko'rib chiqilmoqda</button>
+        <button class="filter-btn f-hal"    onclick="filter('Hal etilgan', this)">🟢 Hal etilgan</button>
+        <button class="filter-btn f-rad"    onclick="filter('Rad etilgan', this)">🔴 Rad etilgan</button>
+      </div>
+
+      <div id="royxat-ichida"></div>
+    </div>
+  </div>
+
+  <script>
+    let joriyFilter = 'barchasi';
+
+    function sahifaKo(qaysi, btn) {
+      document.getElementById('sahifa-forma').classList.remove('aktiv');
+      document.getElementById('sahifa-royxat').classList.remove('aktiv');
+      document.getElementById('sahifa-' + qaysi).classList.add('aktiv');
+      document.querySelectorAll('.menu button').forEach(b => b.className = 'oddiy');
+      if (btn) btn.className = 'aktiv';
+      if (qaysi === 'royxat') royxatniKo();
+      headerSoniniYanila();
+    }
+
+    function yuborish() {
+      let ism    = document.getElementById('ism').value.trim();
+      let tel    = document.getElementById('telefon').value.trim();
+      let tur    = document.getElementById('tur').value;
+      let bolim  = document.getElementById('bolim').value;
+      let mazmun = document.getElementById('mazmun').value.trim();
+
+      document.getElementById('xato').style.display = 'none';
+      document.getElementById('muvaffaqiyat').style.display = 'none';
+
+      if (!ism)    return xatoKo('⚠️ Ismingizni kiriting!');
+      if (!tel)    return xatoKo('⚠️ Telefon raqamini kiriting!');
+      if (!tur)    return xatoKo('⚠️ Murojaat turini tanlang!');
+      if (!bolim)  return xatoKo('⚠️ Mas\'ul bo\'limni tanlang!');
+      if (!mazmun) return xatoKo('⚠️ Murojaat mazmunini yozing!');
+
+      let murojaat = {
+        id:     'KTQ-' + Date.now(),
+        ism, tel, tur, bolim, mazmun,
+        holat:  'Yangi',
+        sana:   new Date().toLocaleString('uz-UZ')
+      };
+
+      let royxat = JSON.parse(localStorage.getItem('murojaatlar') || '[]');
+      royxat.unshift(murojaat);
+      localStorage.setItem('murojaatlar', JSON.stringify(royxat));
+
+      document.getElementById('muvaffaqiyat').style.display = 'block';
+      document.getElementById('muvaffaqiyat').innerHTML =
+        '✅ Hurmatli <b>' + ism + '</b>, murojaatingiz qabul qilindi!<br>Raqamingiz: <b>' + murojaat.id + '</b>';
+
+      document.getElementById('ism').value = '';
+      document.getElementById('telefon').value = '';
+      document.getElementById('tur').value = '';
+      document.getElementById('bolim').value = '';
+      document.getElementById('mazmun').value = '';
+      headerSoniniYanila();
+    }
+
+    function xatoKo(matn) {
+      let el = document.getElementById('xato');
+      el.style.display = 'block';
+      el.textContent = matn;
+    }
+
+    function holatniOzgartir(id, yangiHolat) {
+      let royxat = JSON.parse(localStorage.getItem('murojaatlar') || '[]');
+      let m = royxat.find(x => x.id === id);
+      if (m) {
+        m.holat = yangiHolat;
+        localStorage.setItem('murojaatlar', JSON.stringify(royxat));
+        royxatniKo();
+        headerSoniniYanila();
+      }
+    }
+
+    function ochir(id) {
+      if (!confirm('Bu murojaatni o\'chirishni tasdiqlaysizmi?')) return;
+      let royxat = JSON.parse(localStorage.getItem('murojaatlar') || '[]');
+      royxat = royxat.filter(x => x.id !== id);
+      localStorage.setItem('murojaatlar', JSON.stringify(royxat));
+      royxatniKo();
+      headerSoniniYanila();
+    }
+
+    function filter(qiymat, btn) {
+      joriyFilter = qiymat;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('aktiv'));
+      btn.classList.add('aktiv');
+      royxatniKo();
+    }
+
+    function holatClass(holat) {
+      if (holat === 'Yangi')               return 'holat-yangi';
+      if (holat === "Ko'rib chiqilmoqda")  return 'holat-korib';
+      if (holat === 'Hal etilgan')         return 'holat-hal';
+      if (holat === 'Rad etilgan')         return 'holat-rad';
+      return 'holat-yangi';
+    }
+
+    function royxatniKo() {
+      let royxat = JSON.parse(localStorage.getItem('murojaatlar') || '[]');
+      let filtered = joriyFilter === 'barchasi'
+        ? royxat
+        : royxat.filter(m => m.holat === joriyFilter);
+
+      document.getElementById('soni').textContent = filtered.length;
+
+      let konteyner = document.getElementById('royxat-ichida');
+      if (filtered.length === 0) {
+        konteyner.innerHTML = '<div class="bosh-holat"><div>📭</div>Murojaat topilmadi</div>';
+        return;
+      }
+
+      konteyner.innerHTML = filtered.map(m => `
+        <div class="murojaat-karta">
+          <div class="karta-yuqori">
+            <span class="karta-ism">👤 ${m.ism}</span>
+            <div class="karta-badglar">
+              <span class="tur-badge">${m.tur}</span>
+              <span class="holat ${holatClass(m.holat)}">${m.holat}</span>
+            </div>
+          </div>
+          <div class="karta-info">📞 ${m.tel} &nbsp;|&nbsp; 🏢 ${m.bolim}</div>
+          <div class="karta-mazmun">${m.mazmun}</div>
+          <div class="karta-pastki">
+            <div class="karta-raqam">🆔 ${m.id} · ${m.sana}</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select class="holat-select" onchange="holatniOzgartir('${m.id}', this.value)">
+                <option ${m.holat==='Yangi'               ?'selected':''}>Yangi</option>
+                <option ${m.holat==="Ko'rib chiqilmoqda"  ?'selected':''}>Ko'rib chiqilmoqda</option>
+                <option ${m.holat==='Hal etilgan'         ?'selected':''}>Hal etilgan</option>
+                <option ${m.holat==='Rad etilgan'         ?'selected':''}>Rad etilgan</option>
+              </select>
+              <button onclick="ochir('${m.id}')"
+                style="background:#fde8e8;color:#9B2020;border:1px solid #f5c5c5;
+                       padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">
+                🗑 O'chirish
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function headerSoniniYanila() {
+      let royxat = JSON.parse(localStorage.getItem('murojaatlar') || '[]');
+      document.getElementById('jami-soni').textContent = royxat.length;
+    }
+
+    headerSoniniYanila();
+  </script>
+</body>
+</html>
